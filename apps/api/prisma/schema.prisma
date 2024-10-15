@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,4 +5,66 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model comments {
+  id       Int    @id @default(autoincrement())
+  text     String
+  authorId Int
+  postId   Int
+  users    users  @relation(fields: [authorId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "comments_authorId_users_id_fk")
+  posts    posts  @relation(fields: [postId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "comments_postId_posts_id_fk")
+}
+
+model groups {
+  id            Int             @id @default(autoincrement())
+  name          String
+  usersToGroups usersToGroups[]
+}
+
+model posts {
+  id       Int        @id @default(autoincrement())
+  title    String
+  content  String
+  authorId Int
+  comments comments[]
+  users    users      @relation(fields: [authorId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "posts_authorId_users_id_fk")
+}
+
+model profileInfo {
+  id       Int   @id @default(autoincrement())
+  metadata Json?
+  userId   Int
+  users    users @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "profileInfo_userId_users_id_fk")
+}
+
+enum Role {
+  ADMIN
+  USER
+  MODERATOR
+}
+
+model users {
+  id            Int             @id @default(autoincrement())
+  name          String
+  email         String          @unique
+  password      String
+  hashedRT      String?
+  role          Role            @default(USER)
+  comments      comments[]
+  posts         posts[]
+  profileInfo   profileInfo[]
+  usersToGroups usersToGroups[]
+
+  @@index([id], map: "idIndex")
+}
+
+model usersToGroups {
+  userId  Int
+  groupId Int
+  groups  groups @relation(fields: [groupId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "usersToGroups_groupId_groups_id_fk")
+  users   users  @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "usersToGroups_userId_users_id_fk")
+
+  @@id([groupId, userId], map: "usersToGroups_groupId_userId_pk")
+  @@index([userId], map: "userIdIndex")
 }
