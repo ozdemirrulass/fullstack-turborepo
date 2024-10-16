@@ -21,6 +21,8 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Get("protected-dummy")
   dummy(@Request() req) {
-    return `dummy api user id: ${req.user.id}`
+    return {
+      message: `dummy api user id: ${req.user.id}`
+    }
   }
 }
