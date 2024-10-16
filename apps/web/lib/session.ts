@@ -1,3 +1,4 @@
+"use server"
 import { jwtVerify, SignJWT } from "jose";
 import { Session } from "./type";
 import { cookies } from "next/headers";
