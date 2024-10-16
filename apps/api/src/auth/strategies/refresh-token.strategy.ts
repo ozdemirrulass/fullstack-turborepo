@@ -8,7 +8,7 @@ import { AuthService } from "../auth.service";
 import refreshConfig from "../config/refresh.config";
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy, "refresh-jwt") {
+export class RefreshJwtStrategy extends PassportStrategy(Strategy, "refresh-jwt") {
     constructor(
         @Inject(refreshConfig.KEY)
         private refreshTokenConfig: ConfigType<typeof refreshConfig>,
