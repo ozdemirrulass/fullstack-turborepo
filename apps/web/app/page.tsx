@@ -1,8 +1,11 @@
 import Image from "next/image";
 import { Button } from "@repo/ui/button";
 import styles from "./page.module.css";
+import { getProfile } from "@/lib/actions";
 
-export default function Home() {
+export default async function Home() {
+
+  const res = await getProfile();
   return (
     <div className={styles.page}>
       <main className={styles.main}>
@@ -14,13 +17,8 @@ export default function Home() {
           height={38}
           priority
         />
-        <ol>
-          <li>
-            Get started by editing <code>app/page.tsx</code>
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
 
+        <p>{JSON.stringify(res)}</p>
         <div className={styles.ctas}>
           <a
             className={styles.primary}

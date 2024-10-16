@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { BACKEND_URL } from "./constants";
 import { FormState, SigninFormSchema, SignupFormSchema } from "./type";
-import { createSession } from "./session";
+import { createSession, getSession } from "./session";
 
 export async function signUp(state: FormState, formData: FormData): Promise<FormState> {
     const validatedFields = SignupFormSchema.safeParse({
@@ -61,7 +61,9 @@ export async function signIn(state: FormState, formData: FormData): Promise<Form
             user: {
                 id: result.id,
                 name: result.name
-            }
+            },
+            accessToken: result.accessToken,
+            refreshToken: result.refreshToken
         })
         redirect("/")
     }
@@ -72,3 +74,36 @@ export async function signIn(state: FormState, formData: FormData): Promise<Form
     }
 
 }
+
+export const refreshToken = async (oldRefreshToken: string) => {
+    try {
+        const response = await fetch(`${BACKEND_URL}/auth/refresh`, {
+            method: "POST",
+            headers: {
+                authorization: `Bearer ${oldRefreshToken}`,
+            },
+        })
+
+        if (!response.ok) {
+            throw new Error("Failed to refresh token!")
+        }
+
+        const { accessToken, refreshToken } = await response.json()
+
+        const update = await fetch("http://localhost:3000/api/auth/update", {
+            method: "POST",
+            body: JSON.stringify({
+                accessToken,
+                refreshToken
+            })
+        })
+
+        if (!update.ok) throw new Error("Failed to update the tokens")
+
+        return accessToken
+
+    } catch (err) {
+        console.error("Refresh token failed:", err)
+        return null
+    }
+} 
