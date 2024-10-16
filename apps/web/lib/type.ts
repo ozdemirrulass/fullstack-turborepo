@@ -39,3 +39,12 @@ export const SigninFormSchema = z.object({
         .min(1, { message: "Password field must not be empty" })
         .trim()
 })
+
+export type Session = {
+    user: {
+        id: string,
+        name: string
+    },
+    // accessToken: string,
+    // refreshToken: string
+}
